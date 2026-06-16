@@ -128,6 +128,7 @@ body { background: var(--bg); color: var(--text); min-height: 100vh; }
   </div>
   <button class="btn-primary" onclick="initDashboard()">Dashboard starten →</button>
   <div class="setup-status" id="setup-status"></div>
+  <button id="clear-btn" onclick="clearSaved()" style="display:none;width:100%;margin-top:10px;background:none;border:1.5px solid var(--border);border-radius:8px;padding:12px;font-family:var(--cond);font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);cursor:pointer;">✕ Gespeicherte Zugangsdaten löschen</button>
 </div>
 
 <!-- DASHBOARD -->
@@ -139,6 +140,8 @@ body { background: var(--bg); color: var(--text); min-height: 100vh; }
     </div>
     <div class="topbar-actions">
       <button class="btn-sm" onclick="loadData()">⟳ Aktualisieren</button>
+      <button class="btn-sm" onclick="exportResults()">↓ Speichern</button>
+      <button class="btn-sm" onclick="logout()" title="Zugangsdaten löschen">⎋ Abmelden</button>
       <button class="btn-sm yellow" onclick="showQR()">QR-Code zeigen</button>
     </div>
   </div>
@@ -177,6 +180,34 @@ const LABELS = ['KI-Skill','Nutzung/Tag','Hype-O-Meter','Bild-KI','Video-KI','Au
 let API_KEY='', BIN_ID='', SURVEY_URL='';
 let entries=[], radarChart=null, currentView='group';
 
+// ── AUTO-LOGIN bei Refresh ──
+(function autoLogin() {
+  const saved = JSON.parse(localStorage.getItem('spaces_dash') || 'null');
+  if (saved?.key && saved?.bin) {
+    API_KEY    = saved.key;
+    BIN_ID     = saved.bin;
+    SURVEY_URL = saved.survey || '';
+    document.getElementById('api-key-input').value    = API_KEY;
+    document.getElementById('bin-id-input').value     = BIN_ID;
+    document.getElementById('survey-url-input').value = SURVEY_URL;
+    document.getElementById('clear-btn').style.display = 'block';
+    loadData(true).then(() => {
+      document.getElementById('setup-screen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'flex';
+      showGroup();
+    }).catch(() => {});
+  }
+})();
+
+function clearSaved() {
+  localStorage.removeItem('spaces_dash');
+  document.getElementById('api-key-input').value = '';
+  document.getElementById('bin-id-input').value = '';
+  document.getElementById('survey-url-input').value = '';
+  document.getElementById('clear-btn').style.display = 'none';
+  setSetupStatus('Zugangsdaten gelöscht.');
+}
+
 async function initDashboard() {
   API_KEY    = document.getElementById('api-key-input').value.trim();
   BIN_ID     = document.getElementById('bin-id-input').value.trim();
@@ -195,6 +226,8 @@ async function initDashboard() {
       BIN_ID = d.metadata.id;
       document.getElementById('bin-id-input').value = BIN_ID;
     }
+    // Zugangsdaten speichern
+    localStorage.setItem('spaces_dash', JSON.stringify({key:API_KEY, bin:BIN_ID, survey:SURVEY_URL}));
     await loadData(true);
     document.getElementById('setup-screen').style.display = 'none';
     const dash = document.getElementById('dashboard');
@@ -349,7 +382,125 @@ function showQR() {
   document.getElementById('qr-modal').classList.add('open');
 }
 
+function logout() {
+  if (!confirm('Zugangsdaten löschen und zum Login zurück?')) return;
+  localStorage.removeItem('spaces_dash');
+  location.reload();
+}
+
 document.getElementById('qr-modal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+
+function exportResults() {
+  if (!entries.length) { alert('Keine Daten vorhanden.'); return; }
+  const date = new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const time = new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+  const avg  = LABELS.map((_,i)=>Math.round(entries.reduce((a,e)=>a+(e.values[i]||0),0)/entries.length*10)/10);
+
+  // Build person rows
+  const personRows = entries.map(e => {
+    const vals = LABELS.map((_,i)=>`<td style="text-align:center;padding:6px 10px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:${(e.values[i]||0)>=0?'#2D3FE0':'#E0443A'}">${e.values[i]>0?'+':''}${e.values[i]||0}</td>`).join('');
+    const ts = new Date(e.ts).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+    return `<tr style="border-bottom:1px solid rgba(45,63,224,0.1)">
+      <td style="padding:8px 10px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;text-transform:uppercase;color:#0D1440">${e.name}</td>
+      <td style="padding:6px 10px;font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#6B72A8">${ts}</td>
+      ${vals}
+    </tr>`;
+  }).join('');
+
+  // Build avg row
+  const avgCells = avg.map(v=>`<td style="text-align:center;padding:6px 10px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:#2D3FE0;background:rgba(45,63,224,0.06)">${v>0?'+':''}${v}</td>`).join('');
+
+  // Radar SVG placeholder note
+  const html = `<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Schulungsergebnisse · ${date}</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"><\/script>
+<style>
+  body { background:#F0F0FC; font-family:'Barlow Condensed',sans-serif; margin:0; padding:40px; color:#0D1440; }
+  .header { background:#2D3FE0; color:#fff; padding:28px 32px; border-radius:12px; margin-bottom:28px; display:flex; justify-content:space-between; align-items:flex-end; }
+  h1 { font-size:42px; font-weight:900; text-transform:uppercase; line-height:1; }
+  h1 span { color:#F5C842; }
+  .meta { font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.1em; color:rgba(255,255,255,0.6); line-height:2; text-align:right; }
+  .card { background:#fff; border:1.5px solid rgba(45,63,224,0.12); border-radius:12px; padding:24px; margin-bottom:20px; }
+  .card-title { font-size:11px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#6B72A8; margin-bottom:16px; }
+  table { width:100%; border-collapse:collapse; }
+  th { font-size:10px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#6B72A8; padding:6px 10px; border-bottom:1.5px solid rgba(45,63,224,0.12); text-align:center; }
+  th:first-child, th:nth-child(2) { text-align:left; }
+  .radar-wrap { display:flex; justify-content:center; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div><h1>ERGEBNISSE <span>${date}</span></h1></div>
+  <div class="meta">Freepik Spaces Schulung<br>${entries.length} Teilnehmer · Export ${time}</div>
+</div>
+
+<div class="card">
+  <div class="card-title">Gruppenradar</div>
+  <div class="radar-wrap"><canvas id="radar" width="500" height="430"></canvas></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Alle Teilnehmer im Überblick</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Zeit</th>
+        ${LABELS.map(l=>`<th>${l}</th>`).join('')}
+      </tr>
+    </thead>
+    <tbody>
+      ${personRows}
+      <tr style="border-top:2px solid rgba(45,63,224,0.2)">
+        <td colspan="2" style="padding:8px 10px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;text-transform:uppercase;color:#2D3FE0;background:rgba(45,63,224,0.06)">Gruppe Ø</td>
+        ${avgCells}
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <div class="card-title">Rohdaten (JSON)</div>
+  <pre style="font-size:11px;color:#6B72A8;overflow-x:auto;line-height:1.6">${JSON.stringify(entries, null, 2)}</pre>
+</div>
+
+<script>
+const LABELS = ${JSON.stringify(LABELS)};
+const avg    = ${JSON.stringify(avg)};
+new Chart(document.getElementById('radar').getContext('2d'),{
+  type:'radar',
+  data:{labels:LABELS,datasets:[{
+    label:'Gruppe Ø',
+    data:avg.map(v=>v+10),
+    fill:true,
+    backgroundColor:'rgba(45,63,224,0.15)',
+    borderColor:'#2D3FE0',
+    borderWidth:2.5,
+    pointBackgroundColor:'#2D3FE0',
+    pointRadius:5
+  }]},
+  options:{
+    responsive:false,
+    scales:{r:{min:0,max:20,ticks:{stepSize:5,callback:v=>v-10,font:{size:11,family:"'Barlow Condensed'",weight:'700'},color:'#6B72A8',backdropColor:'transparent'},grid:{color:'rgba(45,63,224,0.08)'},angleLines:{color:'rgba(45,63,224,0.1)'},pointLabels:{font:{size:12,family:"'Barlow Condensed'",weight:'700'},color:'#0D1440'}}},
+    plugins:{legend:{display:false}}
+  }
+});
+<\/script>
+</body>
+</html>`;
+
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `spaces-schulung-${date.replace(/\./g,'-')}.html`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
 </script>
 </body>
 </html>
