@@ -4,67 +4,86 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Spaces Schulung – Dein Profil</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@800;900&family=Young+Serif&display=swap" rel="stylesheet">
 <style>
+/* Design: Linkedin-Niklas – ein Grund, eine Akzentfarbe, eine Aussage */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --blue: #2D3FE0; --yellow: #F5C842;
-  --bg: #F0F0FC; --surface: #FFFFFF;
-  --border: rgba(45,63,224,0.12);
-  --text: #0D1440; --muted: #6B72A8;
-  --cond: 'Barlow Condensed', sans-serif;
-  --body: 'Barlow', sans-serif;
+  --ultramarine: #3F37FF; --cobalt: #023FA5; --midnight: #240D57; --violet: #592795;
+  --rust: #CE4000; --sun: #FBC507; --paper: #ECEDDF; --white: #FFFFFF;
+  --hairline: rgba(36,13,87,0.14);
+  --font-display: "PP Agrandir Grand Heavy", "PPAgrandir-GrandHeavy", "PP Agrandir", "Unbounded", system-ui, sans-serif;
+  --font-serif: "Young Serif Light", "YoungSerif-Light", "Young Serif", Georgia, serif;
+  --margin: 24px; --halftone-pitch: 14px; --radius-badge: 10px;
 }
-body { background: var(--bg); color: var(--text); font-family: var(--body); min-height: 100vh; padding-bottom: 60px; }
+body { background: var(--paper); color: var(--midnight); font-family: var(--font-serif); font-weight: 300; min-height: 100vh; padding-bottom: 64px; -webkit-font-smoothing: antialiased; }
+.disp { font-family: var(--font-display); font-weight: 800; text-transform: uppercase; letter-spacing: -0.05em; }
 
-header { background: var(--blue); height: 10px; }
+/* HERO – ultramarine Grund, paper Headline, cobalt Halftone */
+.hero { position: relative; overflow: hidden; background: var(--ultramarine); color: var(--paper); padding: 40px var(--margin) 28px; min-height: 240px; display: flex; flex-direction: column; justify-content: flex-end; }
+.hero .ht { position: absolute; inset: 0; background-image: radial-gradient(circle, var(--cobalt) 34%, transparent 36%); background-size: var(--halftone-pitch) var(--halftone-pitch);
+  -webkit-mask: radial-gradient(ellipse 45% 60% at 82% 28%, #000 55%, transparent 72%); mask: radial-gradient(ellipse 45% 60% at 82% 28%, #000 55%, transparent 72%); }
+.hero .kicker { position: relative; font-family: var(--font-display); font-weight: 800; font-size: 12px; letter-spacing: 0; text-transform: uppercase; color: var(--sun); margin-bottom: 14px; }
+.hero h1 { position: relative; font-size: 44px; line-height: 0.95; }
+.hero p { position: relative; font-size: 17px; line-height: 1.35; margin-top: 14px; max-width: 30ch; }
 
-.name-section { padding: 24px; background: var(--surface); border-bottom: 1.5px solid var(--border); }
-.field-label { font-family: var(--cond); font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--blue); margin-bottom: 10px; display: block; }
-.name-section input { width: 100%; background: var(--bg); border: 1.5px solid var(--border); border-radius: 8px; padding: 14px 16px; font-family: var(--cond); font-size: 20px; font-weight: 700; color: var(--text); outline: none; transition: border-color 0.2s; }
-.name-section input:focus { border-color: var(--blue); }
-.name-section input::placeholder { color: var(--muted); font-weight: 400; }
+.name-section { padding: 28px var(--margin); background: var(--paper); border-bottom: 1.5px solid var(--hairline); }
+.field-label { font-family: var(--font-display); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0; color: var(--violet); margin-bottom: 10px; display: block; }
+.name-section input { width: 100%; background: var(--white); border: none; border-radius: 0; padding: 16px; font-family: var(--font-display); font-size: 20px; font-weight: 800; letter-spacing: -0.03em; text-transform: uppercase; color: var(--midnight); outline: 3px solid transparent; outline-offset: 0; transition: outline-color 0.2s; }
+.name-section input:focus { outline-color: var(--ultramarine); }
+.name-section input::placeholder { font-family: var(--font-serif); font-weight: 300; text-transform: none; letter-spacing: 0; color: var(--violet); opacity: 0.7; }
 
-.q-item { background: var(--surface); padding: 22px 24px; border-bottom: 1.5px solid var(--border); }
-.q-meta { display: flex; align-items: baseline; gap: 10px; margin-bottom: 16px; }
-.q-num { font-family: var(--cond); font-size: 11px; font-weight: 700; color: var(--yellow); background: var(--blue); padding: 2px 7px; border-radius: 3px; letter-spacing: 0.08em; flex-shrink: 0; }
-.q-title { font-family: var(--cond); font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text); }
+.q-item { background: var(--paper); padding: 26px var(--margin); border-bottom: 1.5px solid var(--hairline); }
+.q-meta { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+.q-num { font-family: var(--font-display); font-size: 16px; font-weight: 800; letter-spacing: -0.05em; color: var(--paper); background: var(--midnight); width: 40px; height: 40px; border-radius: var(--radius-badge); display: grid; place-items: center; flex-shrink: 0; }
+.q-title { font-family: var(--font-display); font-size: 19px; line-height: 1.05; font-weight: 800; text-transform: uppercase; letter-spacing: -0.05em; color: var(--midnight); }
 
-/* GRADIENT SLIDER */
+/* SLIDER – flache Linie, sun-Punkt */
 input[type=range] {
-  -webkit-appearance: none; width: 100%; height: 6px;
-  border-radius: 3px; outline: none; cursor: pointer;
-  background: linear-gradient(to right, var(--blue) 0%, #c0bef5 50%, var(--yellow) 100%);
-  margin-bottom: 10px;
-  display: block;
+  -webkit-appearance: none; appearance: none; width: 100%; height: 6px;
+  border-radius: 0; outline: none; cursor: pointer;
+  background: var(--midnight);
+  margin: 6px 0 14px; display: block;
 }
 input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 30px; height: 30px; border-radius: 50%;
-  background: #fff; border: 3px solid var(--blue);
-  box-shadow: 0 2px 10px rgba(45,63,224,0.25); cursor: pointer; transition: transform 0.1s;
+  -webkit-appearance: none; width: 32px; height: 32px; border-radius: 50%;
+  background: var(--sun); border: 4px solid var(--midnight); cursor: pointer; transition: transform 0.1s;
 }
+input[type=range]::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; background: var(--sun); border: 4px solid var(--midnight); cursor: pointer; }
 input[type=range]:active::-webkit-slider-thumb { transform: scale(1.15); }
+input[type=range]:focus-visible { outline: 3px solid var(--ultramarine); outline-offset: 8px; }
 
-.poles { display: flex; justify-content: space-between; }
-.pole { font-family: var(--cond); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); max-width: 45%; line-height: 1.3; }
+.poles { display: flex; justify-content: space-between; gap: 16px; }
+.pole { font-family: var(--font-serif); font-size: 15px; line-height: 1.25; color: var(--violet); max-width: 45%; }
 .pole.right { text-align: right; }
 
-.submit-area { padding: 28px 24px 0; }
-button#submit-btn { width: 100%; background: var(--blue); color: #fff; border: none; border-radius: 10px; padding: 18px; font-family: var(--cond); font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; transition: opacity 0.2s, transform 0.1s; }
+.submit-area { padding: 32px var(--margin) 0; }
+button#submit-btn { width: 100%; background: var(--midnight); color: var(--sun); border: none; border-radius: 0; padding: 20px; font-family: var(--font-display); font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: -0.03em; cursor: pointer; transition: background 0.2s, transform 0.1s; }
+button#submit-btn:hover { background: var(--violet); }
+button#submit-btn:focus-visible { outline: 3px solid var(--ultramarine); outline-offset: 3px; }
 button#submit-btn:active { transform: scale(0.98); }
-button#submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.status { margin-top: 14px; font-family: var(--cond); font-size: 13px; text-align: center; color: var(--muted); min-height: 20px; text-transform: uppercase; letter-spacing: 0.08em; }
+button#submit-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.status { margin-top: 14px; font-family: var(--font-serif); font-size: 16px; text-align: center; color: var(--rust); min-height: 22px; }
 
-.success-screen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; padding: 40px 24px; text-align: center; }
-.checkmark { width: 72px; height: 72px; border-radius: 50%; background: var(--blue); display: flex; align-items: center; justify-content: center; margin-bottom: 24px; color: var(--yellow); font-size: 32px; font-weight: 900; }
-.success-screen h2 { font-family: var(--cond); font-size: 40px; font-weight: 900; text-transform: uppercase; color: var(--blue); margin-bottom: 10px; }
-.success-screen p { font-family: var(--cond); font-size: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); line-height: 1.6; }
+/* DANKE – midnight Grund, sun Headline */
+.success-screen { display: none; position: relative; overflow: hidden; flex-direction: column; justify-content: space-between; min-height: 100vh; padding: 40px var(--margin); background: var(--midnight); color: var(--paper); }
+.success-screen .ht { position: absolute; inset: 0; background-image: radial-gradient(circle, var(--violet) 36%, transparent 38%); background-size: var(--halftone-pitch) var(--halftone-pitch);
+  -webkit-mask: radial-gradient(circle at 70% 45%, #000 25%, transparent 55%); mask: radial-gradient(circle at 70% 45%, #000 25%, transparent 55%); }
+.checkmark { position: relative; width: 72px; height: 72px; border-radius: 50%; background: var(--sun); color: var(--midnight); display: grid; place-items: center; font-family: var(--font-display); font-size: 34px; font-weight: 900; }
+.success-screen h2 { position: relative; font-size: 64px; line-height: 0.95; color: var(--sun); margin-bottom: 18px; }
+.success-screen p { position: relative; font-family: var(--font-serif); font-size: 19px; line-height: 1.35; color: var(--paper); max-width: 28ch; }
 </style>
 </head>
 <body>
 
 <div id="main-form">
-  <header></header>
+  <header class="hero">
+    <div class="ht"></div>
+    <div class="kicker">Freepik Spaces · Schulung</div>
+    <h1 class="disp">Dein<br>KI-Profil.</h1>
+    <p>Zehn Regler, ehrliche Einschätzung. Ganz links heißt: gar nicht – ganz rechts: voll und ganz.</p>
+  </header>
 
   <div class="name-section">
     <label class="field-label">Dein Name</label>
@@ -80,9 +99,12 @@ button#submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 </div>
 
 <div class="success-screen" id="success-screen">
+  <div class="ht"></div>
   <div class="checkmark">✓</div>
-  <h2>Danke!</h2>
-  <p>Dein Profil wurde gespeichert.<br>Das Dashboard zeigt gleich alle Ergebnisse.</p>
+  <div>
+    <h2 class="disp">Danke.</h2>
+    <p>Dein Profil ist gespeichert. Das Dashboard zeigt gleich alle Ergebnisse.</p>
+  </div>
 </div>
 
 <script>
